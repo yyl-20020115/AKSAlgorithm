@@ -1,17 +1,27 @@
 #include <iostream>
 
-typedef long long ll;
+typedef signed long long int64;
+typedef unsigned long long uint64;
+
 #ifdef _USE_INTRINSIC
-extern "C" ll find_msb_position(ll value);
+extern "C" int64 find_msb_position(uint64 value);
+//global find_msb_position
+//; Input
+//;   rcx - uint64 to find msb
+//; Output
+//;   rax - msb position
+//find_msb_position :
+//  test rcx, rcx
+//  jz is_zero
+//  bsr rax, rcx
+//  ret
+//is_zero:
+//  sxor rax, rax
+//  ret
 #else
-ll find_msb_position(ll value) {
-	ll pos = 0;
-
-	// 如果num为0，直接返回0
-	if (value == 0)
-		return 0;
-
-	// 计算最高位的位置
+int64 find_msb_position(uint64 value) {
+	if (value == 0) return 0;
+	int64 pos = 0;
 	while (value != 0) {
 		value = value >> 1;
 		pos++;
@@ -20,24 +30,15 @@ ll find_msb_position(ll value) {
 }
 #endif
 
-static bool is_prime_test(ll n) {
-	if (n <= 1) return false;
-	if (n == 2) return true;
-	for (ll i = 2; i * i <= n; i++) {
-		if (n % i == 0)return false;
-	}
-	return true;
-}
 
-static ll sqrt_bv(ll n)
+uint64 sqrt(uint64 n)
 {
-	ll sqrt1 = 0;
-	ll shift = find_msb_position(n); //最高位的位置
-
-	ll sqrt2 = 0;
+	int64 shift = find_msb_position(n);
+	uint64 sqrt1 = 0;
+	uint64 sqrt2 = 0;
 	while (shift >= 0)
 	{
-		ll s = 1LL << shift;
+		uint64 s = 1LL << shift;
 		sqrt2 = ((sqrt1 << 1) + s) << shift;
 		if (sqrt2 <= n)
 		{
@@ -49,15 +50,41 @@ static ll sqrt_bv(ll n)
 	return sqrt1;
 }
 
+uint64 sqrts(uint64 n, uint64* pcr = 0)
+{
+	uint64 sqrt1 = sqrt(n);
+	uint64 m = sqrt1 * sqrt1;
+	if (n > m) {
+		uint64 d = n - m;
+		int64 nc = find_msb_position(d);
+		if (nc > 1) {
+			if (pcr != 0) *pcr = (1ULL<< (nc>>1));
+			n <<= nc;
+			sqrt1 = sqrt(n);
+		}
+	}
+	return sqrt1;
+}
+
+
+static bool is_prime_test(uint64 n) {
+	if (n <= 1) return false;
+	if (n == 2) return true;
+	for (uint64 i = 2; i * i <= n; i++) {
+		if (n % i == 0)return false;
+	}
+	return true;
+}
+
 // 求最大公约数的辗转相除法
-static ll gcd(ll a, ll b) {
+static uint64 gcd(uint64 a, uint64 b) {
 	return b == 0 ? a : gcd(b, a % b);
 }
 
 // 快速幂取模算法
 // a^n mod m = (a mod m)^n mod m
-static ll fast_pow_mod(ll a, ll n, ll m) {
-	ll res = 1;
+static uint64 fast_pow_mod(uint64 a, uint64 n, uint64 m) {
+	uint64 res = 1;
 	a %= m;
 	while (n > 0) {
 		if (n & 1) {
@@ -70,14 +97,14 @@ static ll fast_pow_mod(ll a, ll n, ll m) {
 }
 
 // 判断一个数是否为素数
-static bool is_prime(ll n) {
+static bool is_prime(uint64 n) {
 	if (n <= 1) return false;
 	if (n <= 3) return true;
 	if (n % 2 == 0 || n % 3 == 0) return false;
 
-	ll r = sqrt_bv(n);
+	uint64 r = sqrt(n);
 	//快速跳过
-	for (ll i = 5; i <= r; i += 6) {
+	for (uint64 i = 5; i <= r; i += 6) {
 		if (n % i == 0 || n % (i + 2) == 0) {
 			return false;
 		}
@@ -86,13 +113,13 @@ static bool is_prime(ll n) {
 }
 
 // 判断n是否是a的幂
-static bool n_is_power_of(ll n, ll* pa = 0) {
+static bool n_is_power_of(uint64 n, uint64* pa = 0) {
 	if (n <= 1) {
 		return true;
 	}
-	ll r = sqrt_bv(n);
-	for (ll a = 2; a <= r; ++a) {
-		ll p = a;
+	uint64 r = sqrt(n);
+	for (uint64 a = 2; a <= r; ++a) {
+		uint64 p = a;
 		while (p <= n) {
 			p *= a;
 			if (p == n) {
@@ -105,47 +132,47 @@ static bool n_is_power_of(ll n, ll* pa = 0) {
 }
 //1-20之间单独判断，20以上再做AKS处理，因为20是-10~+10区间（10~20是1~10的负数区间）
 // AKS算法判断n是否为素数
-static bool AKS(ll n) {
+static bool AKS(uint64 n) {
 	//1~20
-	if (n == 2 
-		|| n == 3 
-		|| n == 5 
-		|| n==7 
-		|| n==11
-		|| n==13 
-		|| n == 17 
+	if (n == 2
+		|| n == 3
+		|| n == 5
+		|| n == 7
+		|| n == 11
+		|| n == 13
+		|| n == 17
 		|| n == 19) return true;
 	if (n <= 1
-		||n % 2 == 0 
-		|| n % 3 == 0 
-		|| n % 5 == 0 
+		|| n % 2 == 0
+		|| n % 3 == 0
+		|| n % 5 == 0
 		|| n % 7 == 0
 		|| n % 11 == 0
 		|| n % 13 == 0
-		|| n % 17 ==0
+		|| n % 17 == 0
 		|| n % 19 == 0) return false;
 
 	// 如果n是a的幂，则n不是素数
 	if (n_is_power_of(n)) return false;
 
 	// 寻找r，满足n^r-1 = (n-1)q，其中q为素数
-	ll r = 2;
-	ll s = sqrt_bv(n);
+	uint64 r = 2;
+	uint64 s = sqrt(n);
 	while (r <= s) {
 		if (n % r == 0)
 			return false;
 
 		if (gcd(n, r) == 1) {
 			bool is_valid = true;
-			ll phi_r = r - 1;
-			ll sqrt_phi_r = sqrt_bv(phi_r);
-			for (ll a = 2; a <= sqrt_phi_r && is_valid; ++a) {
+			uint64 phi_r = r - 1;
+			uint64 sqrt_phi_r = sqrt(phi_r);
+			for (uint64 a = 2; a <= sqrt_phi_r && is_valid; ++a) {
 				if (gcd(a, r) == 1) {
 					is_valid = (fast_pow_mod(a, phi_r, n) != 1);
 				}
 			}
 			if (is_valid) {
-				ll q = (n - 1) / r;
+				uint64 q = (n - 1) / r;
 				if (gcd(q, r) == 1 && fast_pow_mod(n, q, r) == 1) {
 					return true;
 				}
@@ -157,11 +184,18 @@ static bool AKS(ll n) {
 }
 
 int main() {
+	//uint64 n = 31;
+	//uint64 cr = 0;
+	//uint64 r = sqrts(n, &cr);
+	//double u = r / (double)cr;
+
 	while (true) {
-		ll n = 0LL;
+		uint64 n = 0;
 		std::cout << "input an integer(-1 to exit):";
 		std::cin >> n;
-		if (n == -1LL) break;
+
+
+		if (n == -1) break;
 		if (AKS(n)) {
 			std::cout << "Y:" << n << std::endl;
 		}
