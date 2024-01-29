@@ -106,7 +106,6 @@ static bool n_is_power_of(ll n, ll* pa = 0) {
 //1-20之间单独判断，20以上再做AKS处理，因为20是-10~+10区间（10~20是1~10的负数区间）
 // AKS算法判断n是否为素数
 static bool AKS(ll n) {
-	if (n <= 1 || n == 4 || n == 6) return false;
 	//1~20
 	if (n == 2 
 		|| n == 3 
@@ -116,7 +115,8 @@ static bool AKS(ll n) {
 		|| n==13 
 		|| n == 17 
 		|| n == 19) return true;
-	if (n % 2 == 0 
+	if (n <= 1
+		||n % 2 == 0 
 		|| n % 3 == 0 
 		|| n % 5 == 0 
 		|| n % 7 == 0
