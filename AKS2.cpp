@@ -23,7 +23,7 @@ int64 find_msb_position(uint64 value) {
 	if (value == 0) return 0;
 	int64 pos = 0;
 	while (value != 0) {
-		value = value >> 1;
+		value >>= 1;
 		pos++;
 	}
 	return --pos;
@@ -49,7 +49,7 @@ uint64 sqrt(uint64 n)
 	}
 	return sqrt1;
 }
-
+//返回两个整数，其比值为n的平方根
 uint64 sqrts(uint64 n, uint64* pcr = 0)
 {
 	uint64 sqrt1 = sqrt(n);
@@ -60,7 +60,7 @@ uint64 sqrts(uint64 n, uint64* pcr = 0)
 		if (nc > 1) {
 			if (pcr != 0) *pcr = (1ULL<< (nc>>1));
 			n <<= nc;
-			sqrt1 = sqrt(n);
+			sqrt1 = sqrt(n); 
 		}
 	}
 	return sqrt1;
@@ -184,6 +184,10 @@ static bool AKS(uint64 n) {
 }
 
 int main() {
+	//for (uint64 i = 0; i <= 100; i++) {
+	//	uint64 r = sqrt(i);
+	//	std::cout << "i=" << i << ",sqrt=" << r << std::endl;
+	//}
 	//uint64 n = 31;
 	//uint64 cr = 0;
 	//uint64 r = sqrts(n, &cr);
