@@ -38,8 +38,8 @@ static uint64 syz(uint64 r) {
 			i++;
 		else 
 			r /= i;
-		return r;
 	}
+	return r;
 }
 static uint64 pf(uint64 a, uint64 b, uint64 r) {
 	uint64 z = 1;

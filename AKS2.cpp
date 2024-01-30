@@ -3,7 +3,7 @@
 typedef signed long long int64;
 typedef unsigned long long uint64;
 
-#ifdef _USE_INTRINSIC
+#ifndef _USE_INTRINSIC
 extern "C" int64 find_msb_position(uint64 value);
 //global find_msb_position
 //; Input
@@ -20,7 +20,6 @@ extern "C" int64 find_msb_position(uint64 value);
 //  ret
 #else
 int64 find_msb_position(uint64 value) {
-	if (value == 0) return 0;
 	int64 pos = 0;
 	while (value != 0) {
 		value >>= 1;
@@ -34,6 +33,7 @@ int64 find_msb_position(uint64 value) {
 uint64 sqrt(uint64 n)
 {
 	int64 shift = find_msb_position(n);
+	if (shift == -1LL) return 0;
 	uint64 sqrt1 = 0;
 	uint64 sqrt2 = 0;
 	while (shift >= 0)
@@ -58,9 +58,9 @@ uint64 sqrts(uint64 n, uint64* pcr = 0)
 		uint64 d = n - m;
 		int64 nc = find_msb_position(d);
 		if (nc > 1) {
-			if (pcr != 0) *pcr = (1ULL<< (nc>>1));
+			if (pcr != 0) *pcr = (1ULL << (nc >> 1));
 			n <<= nc;
-			sqrt1 = sqrt(n); 
+			sqrt1 = sqrt(n);
 		}
 	}
 	return sqrt1;
@@ -184,6 +184,7 @@ static bool AKS(uint64 n) {
 }
 
 int main() {
+	//uint64 u = sqrt(0ULL);
 	//for (uint64 i = 0; i <= 100; i++) {
 	//	uint64 r = sqrt(i);
 	//	std::cout << "i=" << i << ",sqrt=" << r << std::endl;
